@@ -20,6 +20,7 @@ jobs:
         run: npm ci
       - name: Lint code
         run: npm run lint
+
   test:
     runs-on: ubuntu-latest
     steps:
@@ -41,7 +42,8 @@ jobs:
         run: npm run test
 
       - name: Upload test report
-        if: failure() && steps.run-tests.outcome == 'failure'
+        # CLEANED UP: Native conditional check for step/job failure execution targets
+        if: failure() 
         uses: actions/upload-artifact@v4
         with:
           name: test-report
@@ -69,6 +71,7 @@ jobs:
         with:
           name: dist-files
           path: dist
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -77,15 +80,18 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: dist-files
+          path: .
       - name: Output contents
         run: ls
       - name: Deploy
         run: echo "Deploying..."
+
   report:
     if: failure()
     runs-on: ubuntu-latest
     steps:
       - name: Output information
-        echo: |
+        # FIXED: Changed 'echo:' keyword to the proper 'run:' instruction
+        run: |
           echo "something went wrong"
-          echo "${{ github }}"
+          echo "${{ toJSON(github) }}"
